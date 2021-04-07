@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site" method="upgrade">
+	<name>BA Tabs</name>
+	<author>BestAddon</author>
+	<creationDate>01/01/2020</creationDate>
+	<copyright>Copyright (C) 2020 BestAddon. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<authorEmail>support@bestaddon.com</authorEmail>
+	<authorUrl>www.bestaddon.com</authorUrl>
+	<version>1.0.0</version>
+	<description>MOD_DESC</description>
+	<files>
+		<filename module="mod_ba_tabs">mod_ba_tabs.php</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>assets</folder>
+		<folder>tmpl</folder>
+	</files>
+	<languages>
+		<language tag="en-GB">mod_ba_tabs.ini</language>
+	</languages>
+	<config>
+		<fields name="params" addfieldpath="/modules/mod_ba_tabs/assets/admin/fields">
+			<fieldset name="basic" label="Basic">
+				<field name="setting" type="basetting" label="" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>
