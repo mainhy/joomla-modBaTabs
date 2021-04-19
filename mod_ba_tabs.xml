@@ -19,6 +19,9 @@
 	<languages>
 		<language tag="en-GB">language/en-GB.mod_ba_tabs.ini</language>
 	</languages>
+	<updateservers>
+		<server type="extension" name="BA Tabs" priority="1">https://raw.githubusercontent.com/mainhy/joomla-modBaTabs/main/assets/mod_update.xml</server>
+	</updateservers>
 	<config>
 		<fields name="params" addfieldpath="/modules/mod_ba_tabs/assets/admin/fields">
 			<fieldset name="basic" label="Basic">

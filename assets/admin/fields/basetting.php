@@ -1,5 +1,10 @@
 <?php
-defined('JPATH_BASE') or die;
+/**
+* @Copyright   Copyright (C) 2010 BestAddon . All rights reserved.
+* @license     GNU General Public License version 2 or later
+* @link        http://www.bestaddon.com
+**/
+defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 
 jimport('joomla.html.html');
@@ -38,7 +43,7 @@ class JFormFieldBasetting extends JFormField
         
         $getVal = $this->form->getValue('content');
         if (empty($getVal)) {
-            $db->setQuery('ALTER TABLE `#__modules` MODIFY `content` LONGTEXT')->execute();
+            $db->setQuery('ALTER TABLE #__modules MODIFY content LONGTEXT')->execute();
         }
         $getVal = empty($getVal) ? $baRender->defalutData() : $getVal;
         $baData = json_decode($getVal, true);

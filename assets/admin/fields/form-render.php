@@ -1,9 +1,10 @@
 <?php
 /**
 * @Copyright   Copyright (C) 2010 BestAddon . All rights reserved.
-* @license     GNU/GPL http://www.gnu.org/copyleft/gpl.html
+* @license     GNU General Public License version 2 or later
 * @link        http://www.bestaddon.com
 **/
+defined('_JEXEC') or die;
 require_once(dirname(__FILE__).'/form-helper.php');
 class BestFormRender
 {

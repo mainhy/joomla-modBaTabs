@@ -1,4 +1,10 @@
 <?php
+/**
+* @Copyright   Copyright (C) 2010 BestAddon . All rights reserved.
+* @license     GNU General Public License version 2 or later
+* @link        http://www.bestaddon.com
+**/
+defined('_JEXEC') or die;
 trait BestAddonFormElements
 {
     private static $propertyName = 'data-name'; // name OR data-name
@@ -275,18 +281,6 @@ trait BestAddonFormElements
         }
     }
 
-    /**
-     * Camelize
-     *
-     * Takes multiple words separated by spaces or underscores and camelizes them
-     *
-     * @param	string	$str	Input string
-     * @return	string
-     */
-    public static function camelize($str)
-    {
-        return strtolower($str[0]).substr(str_replace(' ', '', ucwords(preg_replace('/[\s_]+/', ' ', $str))), 1);
-    }
 
     /**
      * SET LANGEAGE FOR LABEL FORM

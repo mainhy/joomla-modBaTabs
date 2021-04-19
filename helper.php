@@ -1,10 +1,13 @@
 <?php
 /**
 * @Copyright   Copyright (C) 2010 - 2021 BestAddon . All rights reserved.
-* @license     GNU/GPL http://www.gnu.org/copyleft/gpl.html
+* @license     GNU General Public License version 2 or later
 * @link        http://www.bestaddon.com
 **/
 defined('_JEXEC') or die;
+use Joomla\String\Normalise;
+use Joomla\String\StringHelper;
+
 class modBaTabsHelper
 {
     public static function getList(&$modData, &$params)
@@ -137,7 +140,6 @@ class modBaTabsHelper
                 $item->title = $show_title ? $item->title : '';
                 if ((int)$introtext_limit > 0) {
                     $item->introtext = JHtml::_('content.prepare', $item->introtext);
-                    $item->introtext = preg_replace('/<img[^>]*>/', '', $item->introtext);
                     $item->introtext = self::wordLimit(trim(strip_tags($item->introtext)), $introtext_limit);
                 }
                 $item->maintext = '<div class="ba-infor">'.
@@ -185,27 +187,28 @@ class modBaTabsHelper
             }
         } else {
             foreach (glob($rootPath.$path.'{,*/,*/*/}{*.js,*.css}', GLOB_BRACE) as $filename) {
+                $basePath = $webPath.$path.(preg_match("/\.(js|jsx)$/", $filename) ? 'js/' : 'css/').basename($filename);
                 if ($addRoot) {
                     if ((int)JVERSION >= 4) {
                         $wa = $doc->getWebAssetManager();
                         if (preg_match("/\.(js|jsx)$/", $filename)) {
-                            $wa->registerAndUseScript(basename($rootPath).'-'.basename($filename), str_replace($rootPath, $webPath, $filename), $options, $attributes, $dependencies);
+                            $wa->registerAndUseScript(basename($rootPath).'-'.basename($filename), $basePath, $options, $attributes, $dependencies);
                         } else {
-                            $wa->registerAndUseStyle(basename($rootPath).'-'.basename($filename), str_replace($rootPath, $webPath, $filename), $options, $attributes, empty($dependencies) ? ['fontawesome'] : $dependencies);
+                            $wa->registerAndUseStyle(basename($rootPath).'-'.basename($filename), $basePath, $options, $attributes, empty($dependencies) ? ['fontawesome'] : $dependencies);
                         }
                     } else {
                         if (preg_match("/\.(js|jsx)$/", $filename)) {
-                            $doc->addScript(str_replace($rootPath, $webPath, $filename));
+                            $doc->addScript($basePath);
                         } else {
                             $doc->addStyleSheet('//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css');
-                            $doc->addStyleSheet(str_replace($rootPath, $webPath, $filename));
+                            $doc->addStyleSheet($basePath);
                         }
                     }
                 } else {
                     if (preg_match("/\.(js|jsx)$/", $filename)) {
-                        echo '<script src="'.((int)JVERSION >= 4 ? JURI::root(true) : '').str_replace($rootPath, $webPath, $filename).'"></script>';
+                        echo '<script src="'.((int)JVERSION >= 4 ? JURI::root(true) : '').$basePath.'"></script>';
                     } else {
-                        echo '<link href="'.((int)JVERSION >= 4 ? JURI::root(true) : '').str_replace($rootPath, $webPath, $filename).'" rel="stylesheet">';
+                        echo '<link href="'.((int)JVERSION >= 4 ? JURI::root(true) : '').$basePath.'" rel="stylesheet">';
                     }
                 }
             }
@@ -233,7 +236,8 @@ class modBaTabsHelper
                 }
                 // We should replace only first occurrence in order to allow positions with the same name to regenerate their content:
                 if (($start = strpos($content, $match[0])) !== false) {
-                    $content = substr_replace($content, $output, $start, strlen($match[0]));
+                    //substr@replace($content, $output, $start, strlen($match[0]));
+                    $content = substr($content, 0, $start).$output.substr($content, $start+strlen($match[0]));
                 }
             }
         }
@@ -286,10 +290,11 @@ class modBaTabsHelper
         $output = '';
         $properties = is_array($properties) ? $properties : explode(',', $properties);
         foreach ($properties as $prop) {
-            $isProp = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $prop));
+            $isProp = strtolower(Normalise::toDashSeparated(Normalise::fromCamelCase($prop))); //strtolower(preg@replace('/([a-z])([A-Z])/', '$1-$2', $prop));
             $val = self::prop($attr, $prop, $prefix, $suffix, $hover);
+            $splitGroupVal = str_replace("||", " ", $val);
             if (strpos($isProp, '-image') > 0) {
-                $output.= self::is($val, $isProp.':url('.str_replace("||", " ", $val).');');
+                $output.= self::is($val, $isProp.':url('.$splitGroupVal.');');
             } elseif (strpos($isProp, '-shadow') > 0) {
                 $shadows = explode('||', $val);
                 foreach ($shadows as &$item) {
@@ -297,7 +302,7 @@ class modBaTabsHelper
                 }
                 $output.= $isProp.':'.implode(" ", $shadows).';';
             } else {
-                $output.= self::is($val, $isProp.':'.str_replace("||", " ", $val).';');
+                $output.= self::is($val, $isProp.':'.$splitGroupVal.';');
             }
         }
         return $output;

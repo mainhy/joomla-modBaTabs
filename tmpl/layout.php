@@ -1,11 +1,13 @@
 <?php
 /**
 * @Copyright   Copyright (C) 2010 BestAddon . All rights reserved.
-* @license     GNU/GPL http://www.gnu.org/copyleft/gpl.html
+* @license     GNU General Public License version 2 or later
 * @link        http://www.bestaddon.com
 **/
 defined('_JEXEC') or die;
-$helper = lcfirst(str_replace(' ', '', ucwords(preg_replace('/[\s_]+/', ' ', basename(dirname(__DIR__)))))).'Helper'; // Call Helper class
+use Joomla\String\Normalise;
+
+$helper = Normalise::toCamelCase(basename(dirname(__DIR__))).'Helper'; // Call Helper class
 $moduleid = !empty($module->id) ? $module->id : 0;
 $modID = 'modID'.$moduleid;
 $modData = !empty($module->content) ? json_decode($module->content, true) : $baData;
