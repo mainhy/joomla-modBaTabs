@@ -7,7 +7,8 @@
 defined('_JEXEC') or die;
 use Joomla\String\Normalise;
 
-$helper = Normalise::toCamelCase(basename(dirname(__DIR__))).'Helper'; // Call Helper class
+$modName = Normalise::toCamelCase(basename(dirname(__DIR__)));
+$helper = $modName.'Helper'; // Call Helper class
 $moduleid = !empty($module->id) ? $module->id : 0;
 $modID = 'modID'.$moduleid;
 $modData = !empty($module->content) ? json_decode($module->content, true) : $baData;
@@ -22,7 +23,16 @@ $css = '';
 $css .= str_replace(['{ID}', '[ID]', 'ID'], $modID, $setting['tagCSS']);
 
 // CHECK AJAX BY PREVIEW($ajaxData) & SITE
-$helper::assets('/assets/front/', empty($ajaxData) ? true : false);
+$assetPath = ((int)JVERSION >= 4 ? '' : '/').'modules/'.basename(dirname(__DIR__)).'/assets/front/';
+$listCss = [
+    'ba-animate'=>$assetPath.'css/animate.min.css',
+    $modName.'-css'=>$assetPath.'css/styles.css'
+];
+$listJs = [
+    'ba-tabs-js'=>$assetPath.'js/baTabs.js'
+];
+$listAsset = array_merge($listCss, $listJs); //'/assets/front/'
+$helper::assets($listAsset, empty($ajaxData) ? true : false);
 $helper::assets($css, empty($ajaxData) ? true : false);
 $options = '{'.
                 '"width":"'.(string)$helper::is($setting['width']).'"'.
