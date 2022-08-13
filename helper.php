@@ -175,7 +175,7 @@ class modBaTabsHelper
         $doc = JFactory::getDocument();
         $rootPath = dirname(__FILE__);
         $webPath = ((int)JVERSION >= 4 ? '' : JURI::root(true)).'/modules/'.basename($rootPath);
-        if (strpos($path, '{') !== false && strpos($path, '}') !== false) {
+        if (!is_array($path) && strpos($path, '{') !== false && strpos($path, '}') !== false) {
             if ($addRoot) {
                 if ((int)JVERSION >= 4) {
                     $doc->getWebAssetManager()->addInlineStyle($path);
@@ -186,22 +186,32 @@ class modBaTabsHelper
                 echo '<style>'.$path.'</style>';
             }
         } else {
-            foreach (glob($rootPath.$path.'{,*/,*/*/}{*.js,*.css}', GLOB_BRACE) as $filename) {
-                $basePath = $webPath.$path.(preg_match("/\.(js|jsx)$/", $filename) ? 'js/' : 'css/').basename($filename);
+            $realPath = is_array($path) ? $path : glob($rootPath.$path.'{,*/,*/*/}{*.js,*.css}', GLOB_BRACE);
+            foreach ($realPath as $key => $filename) {
+                $basePath = is_array($path) ? $filename : $webPath.$path.(preg_match("/\.(js|jsx)$/", $filename) ? 'js/' : 'css/').basename($filename);
+                $baseName = is_array($path) ? $key : basename($rootPath).'-'.basename($filename);
                 if ($addRoot) {
                     if ((int)JVERSION >= 4) {
                         $wa = $doc->getWebAssetManager();
                         if (preg_match("/\.(js|jsx)$/", $filename)) {
-                            $wa->registerAndUseScript(basename($rootPath).'-'.basename($filename), $basePath, $options, $attributes, $dependencies);
+                            if ($wa->assetExists('script', $baseName)) {
+                                $wa->useScript($baseName);
+                            } else {
+                                $wa->registerAndUseScript($baseName, $basePath, $options, $attributes, $dependencies);
+                            }
                         } else {
-                            $wa->registerAndUseStyle(basename($rootPath).'-'.basename($filename), $basePath, $options, $attributes, empty($dependencies) ? ['fontawesome'] : $dependencies);
+                            if ($wa->assetExists('style', $baseName)) {
+                                $wa->useStyle($baseName);
+                            } else {
+                                $wa->registerAndUseStyle($baseName, $basePath, $options, $attributes, empty($dependencies) ? ['fontawesome'] : $dependencies);
+                            }
                         }
                     } else {
                         if (preg_match("/\.(js|jsx)$/", $filename)) {
-                            $doc->addScript($basePath);
+                            $doc->addScript(JURI::root(true).$basePath);
                         } else {
                             $doc->addStyleSheet('//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css');
-                            $doc->addStyleSheet($basePath);
+                            $doc->addStyleSheet(JURI::root(true).$basePath);
                         }
                     }
                 } else {
