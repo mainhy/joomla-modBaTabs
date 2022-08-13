@@ -34,7 +34,7 @@ class modBaTabsHelper
         $introtext_limit = (int) self::is($jData['introtext_limit']);
         $show_readmore = (int) self::is($jData['show_readmore']);
         $readmore_text = self::is($jData['readmore_text']) ?: 'Readmore';
-        
+
         //joomla specific
         if ($dataSelect == "source-article") {
             if ((int)JVERSION >= 4) {
@@ -147,7 +147,7 @@ class modBaTabsHelper
                 ($show_author ? '<span class="ba-author">'.(isset($item->author) ? $item->author : $item->author_name).'</span>' : '').
                 ($show_date ? '<span class="ba-date">'.JHtml::_('date', $item->created, 'Y-m-d').'</span>' : '').'</div>'.
                 '<div>'.($show_introtext > 0 ? $item->introtext : '').'</div>'.
-                ($show_readmore ? '<a class="ba-readmore btn btn-primary" href="'.$item->link.'"><span>'.$readmore_text.'</span></a>': '');
+                ($show_readmore ? '<a class="ba-readmore btn btn-primary" href="'.$item->link.'"><span>'.$readmore_text.'</span></a>' : '');
             }
             return $items;
         }
@@ -270,7 +270,7 @@ class modBaTabsHelper
             return $node;
         }
     }
-      
+
     /**
      * Cut string by specified by a number
      */
@@ -280,7 +280,7 @@ class modBaTabsHelper
         return implode(' ', array_splice($words, 0, $word_limit));
     }
 
-    
+
 
     //////////////////////////////////
     ///////// BEGIN ADD STYLES ///////////////////////
