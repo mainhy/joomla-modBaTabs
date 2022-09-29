@@ -216,9 +216,9 @@ class modBaTabsHelper
                     }
                 } else {
                     if (preg_match("/\.(js|jsx)$/", $filename)) {
-                        echo '<script src="'.((int)JVERSION >= 4 ? JURI::root(true) : '').$basePath.'"></script>';
+                        echo '<script src="'.((int)JVERSION >= 4 ? JURI::root() : '').$basePath.'"></script>';
                     } else {
-                        echo '<link href="'.((int)JVERSION >= 4 ? JURI::root(true) : '').$basePath.'" rel="stylesheet">';
+                        echo '<link href="'.((int)JVERSION >= 4 ? JURI::root() : '').$basePath.'" rel="stylesheet">';
                     }
                 }
             }
