@@ -90,3 +90,4 @@ joomla-tab[orientation=horizontal]>section{background:0 0;border:0}
 .edit-style{width:100%}
 .ba-control.is-pro>label{position: relative; z-index: 3;}
 .ba-control.is-pro>label::before{position:absolute;left:0;top:100%;content:'PRO';background:red;color:#fff;font-size:10px;line-height:1;padding:.2em .3em;border-radius:.2em;opacity:1}
+#myTab #general > .row > * > .control-group > .control-label{display: none !important;}
