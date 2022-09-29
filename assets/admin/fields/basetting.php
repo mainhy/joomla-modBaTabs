@@ -16,6 +16,7 @@ class JFormFieldBasetting extends JFormField
     public function getInput()
     {
         require_once dirname(__FILE__).'/form-render.php';
+        JHtml::_('jquery.framework');
         $baRender = new BestFormRender;
         $doc = JFactory::getDocument();
         $db = JFactory::getDbo();
@@ -23,7 +24,7 @@ class JFormFieldBasetting extends JFormField
         $base_url = ((int)JVERSION >= 4 ? '' : JURI::root(true).'/').'modules/'.$modName.'/assets/admin';
         if ((int)JVERSION >= 4) {
             $wa = $doc->getWebAssetManager();
-            $wa->registerAndUseScript('ba-jquery-ui', $base_url.'/js/jquery-ui-custom.min.js', [], [], ['jquery']);
+            $wa->registerAndUseScript('ba-jquery-ui', $base_url.'/js/jquery-ui-custom.min.js');
             $wa->registerAndUseScript('ba-tinymce-js', 'media/vendor/tinymce/tinymce.min.js');
             $wa->registerAndUseScript('ba-modadmin0-js', $base_url.'/js/color-picker.js');
             $wa->registerAndUseScript('ba-modadmin1-js', $base_url.'/js/form.js');
@@ -44,6 +45,7 @@ class JFormFieldBasetting extends JFormField
         $getVal = $this->form->getValue('content');
         if (empty($getVal)) {
             $db->setQuery('ALTER TABLE #__modules MODIFY content LONGTEXT')->execute();
+            JFile::delete(JPATH_ADMINISTRATOR.'/components/com_admin/sql/updates/mysql/4.0.0-2018-03-05.sql');
         }
         $getVal = empty($getVal) ? $baRender->defalutData() : $getVal;
         $baData = json_decode($getVal, true);
