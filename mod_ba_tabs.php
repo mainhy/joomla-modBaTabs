@@ -8,4 +8,4 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Helper\ModuleHelper;
 
 require_once dirname(__FILE__).'/helper.php';
-require JModuleHelper::getLayoutPath($module->module, 'layout');
+require ModuleHelper::getLayoutPath($module->module, 'layout');
