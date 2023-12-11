@@ -5,6 +5,10 @@
 * @link        http://www.bestaddon.com
 **/
 defined('_JEXEC') or die;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\HTML\HTMLHelper;
+
 require_once(dirname(__FILE__).'/form-helper.php');
 class BestFormRender
 {
@@ -36,18 +40,18 @@ class BestFormRender
     }
     public static function renderDataArticle($node)
     {
-        JModelLegacy::addIncludePath(JPATH_BASE.'/components/com_content/models', 'ContentModel');
+        //JModelLegacy::addIncludePath(JPATH_BASE.'/components/com_content/models', 'ContentModel');
         return '<div class="ba-control clearfix">
                     <label>'.self::l('SELECT_CATEGORY', 1).'</label>
-                    '.(function_exists('__') ? preg_replace('/<select/', '<select data-name="catid"', wp_dropdown_categories(['name'=>'catid','class'=>'ba-input','echo'=>0])) : '<select class="ba-input" data-name="catid" multiple="multiple"><option value="">- '.self::l('ALL_CATEGORIES').' -</option>'.JHtml::_('select.options', JHtml::_('category.options', 'com_content')).'</select>').'                    
+                    '.(function_exists('__') ? preg_replace('/<select/', '<select data-name="catid"', wp_dropdown_categories(['name'=>'catid','class'=>'ba-input','echo'=>0])) : '<select class="ba-input" data-name="catid" multiple="multiple"><option value="">- '.self::l('ALL_CATEGORIES').' -</option>'.HTMLHelper::_('select.options', HTMLHelper::_('category.options', 'com_content')).'</select>').'                    
                 </div>'.'
                 '.self::select('child_category', self::l('CHILD_CATEGORY', 1), ["1"=>self::l('YES'),"0"=>self::l('NO')], 'data-rel="button"').'
                 '.self::select('author_filtering_type', self::l('AUTHOR_FILTERING', 1), ["1"=>self::l('INCLUSIVE'),"0"=>self::l('EXCLUSIVE')], 'data-rel="button"').'
                 '.'<div class="ba-control clearfix">
                     <label>'.self::l('AUTHORS', 1).'</label>
                     <select class="ba-input" data-name="created_by" multiple="multiple">
-                        <option value="">- '.JText::_('JNONE').' -</option>
-                        '.JHtml::_('select.options', self::getAuthors()).'
+                        <option value="">- '.Text::_('JNONE').' -</option>
+                        '.HTMLHelper::_('select.options', self::getAuthors()).'
                     </select>
                 </div>'.'
                 '.self::input('article_ids', self::l('EXCLUDED_ARTICLES', 1), '', 'class="ba-input width-md" placeholder="1,2,3"').'                
