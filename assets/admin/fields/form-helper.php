@@ -5,6 +5,9 @@
 * @link        http://www.bestaddon.com
 **/
 defined('_JEXEC') or die;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 trait BestAddonFormElements
 {
     private static $propertyName = 'data-name'; // name OR data-name
@@ -287,7 +290,7 @@ trait BestAddonFormElements
      */
     public static function l($label = '', $desc = false)
     {
-        return JText::_('BAEXT_'.$label).((bool)$desc ? '<i class="ba-tip" title="'.JText::_('BAEXT_'.$label.'_DESC').'">?</i>' : '');
+        return Text::_('BAEXT_'.$label).((bool)$desc ? '<i class="ba-tip" title="'.Text::_('BAEXT_'.$label.'_DESC').'">?</i>' : '');
     }
 
     /**
@@ -296,7 +299,7 @@ trait BestAddonFormElements
     public static function getAuthors()
     {
         // Create a new query object.
-        $db    = JFactory::getDbo();
+        $db    = Factory::getDbo();
         $query = $db->getQuery(true);
 
         // Construct the query
