@@ -8,7 +8,7 @@
  *
  */
 /* global jQuery, BaForm, tinymce, Joomla, modName,ajaxurl */
-; (function (w, d, $) {
+; (function (win, doc, $) {
   // BEGIN FUNCTION ///////////////////
   'use strict'
   var bf = new BaForm()
@@ -49,7 +49,7 @@
       // GET values for the item(area,section,block) in dialog
       function oDialogGetValue (data, dialog) {
         $('.ba-input', dialog).each(function (i, item) {
-          if ($(item).closest('[data-batype]').is(dialog) && data['id'] === $(dialog).attr('data-batype')) {
+          if ($(item).closest('[data-batype]').is(dialog) && data.id === $(dialog).attr('data-batype')) {
             var name = $(item).data('name')
             var oValue = data[name] ? data[name].split('§§') : []
             if (item.hasAttribute('data-group')) {
@@ -67,7 +67,7 @@
 
       // Find a item(area,section,block) in JSON
       function oActionItem (jData, objectId, status) {
-        var dialog = d.querySelector('[data-batype*="' + objectId + '"]')
+        var dialog = doc.querySelector('[data-batype*="' + objectId + '"]')
         jData.forEach(function (oList, idx) {
           for (var key in oList) {
             if (oList.hasOwnProperty(key) && oList[key] === objectId) {
@@ -98,62 +98,59 @@
       /* //////////////////
       //// BEGIN BASIC DATA IN ACCORDION /////////
       ////////////////// */
-      var accordion = $('.ba__basic_data')
-      accordion.sortable({
-        axis: 'y',
-        handle: '.ba__move',
-        placeholder: 'ba-sortable-placeholder',
-        start: function (e, ui) {
-          $(ui.item).find('.panel-body').slideUp()
-        }
-      })
-      accordion.parent().find('.panel-heading').each(function (i, el) {
-        $(el).on('click touchstart', function (e) {
-          var accordionItem = $(e.target).closest('.accordion-basic')
-          var panelBody = accordionItem.children('.panel-body')
-          accordionItem.siblings().find('.panel-body').slideUp()
-          if (!$(e.target).hasClass('ba-header')) { accordionEditor('.ba-editor', true) }
+      var accordion = doc.querySelector('.ba__basic_data')
+      var accordionFirstHtml = accordion.children[0].outerHTML
+      $(accordion)
+        .accordion({
+          active: false,
+          collapsible: true,
+          animate: 500,
+          header: '> div > h3',
+          icons: false,
+          activate: function (event, ui) {
+            ui.newPanel.on('input change', '[data-name^=header]', function (e) {
+              ui.newHeader.find('.ba__move + span').html(this.value)
+            })
+          }
+        })
+        .sortable({
+          axis: 'y',
+          handle: '.ba__move',
+          placeholder: 'ba-sortable-placeholder',
+          start: function (e, ui) {
+            $('.ba-editor', ui.item).each(function (i, el) {
+              tinymce.execCommand('mceRemoveEditor', false, el.id)
+            })
+          },
+          stop: function (event, ui) {
+            $(this).accordion('refresh')
+            $('.ba-editor', ui.item).each(function (i, el) {
+              tinymce.execCommand('mceAddEditor', false, el.id)
+            })
+          }
+        })
+        .parent().on('click touchstart', '.panel-heading > i', function (e) {
           /// /////////// DELETE ONE ITEM ///////////////////////
-          if ($(e.target).hasClass('ba__remove')) {
-            if (accordion.children().length > 1) $(this).closest('div').remove()
+          if ($(e.target).hasClass('ba__remove') && accordion.children.length > 1) {
+            $(this).closest('div').remove()
+            $(accordion).accordion('refresh')
           }
           /// /////////// CLONE ONE ITEM ///////////////////////
           if ($(e.target).hasClass('ba__clone')) {
-            accordionItem.clone(true).insertAfter(accordionItem)
-            accordionEditor('.ba-editor')
-          }
-          /// /////////// EDIT ONE ITEM ///////////////////////
-          if ($(e.target).hasClass('ba__edit') || $(e.target).is('span')) {
-            accordionEditor('.ba-editor')
-            panelBody.slideToggle()
-            accordionHeader($('.ba__basic_data [data-name*=header]'))
+            if (win.wp) $('.ba-editor', accordion).each(function (i, el) { wp.editor.remove(el.id) })
+            else tinymce.remove()
+            var accordionItem = e.target.closest('.accordion-basic')
+            $(accordionItem).after(accordionItem.outerHTML).find('.ba-editor').attr('id', 'ba' + Math.floor(Math.random() * 10000))
+            $(accordion).accordion('refresh').accordion('option', 'active', false)
           }
           if ($(e.target).hasClass('ba__basic-add')) {
-            var cloneItem = accordion.children().first().clone(true)
-            cloneItem.find('.panel-heading > span').empty()
-            accordion.prepend(cloneItem)
-            accordion.find('.panel-body').slideUp()
-            cloneItem.find('.ba-input').each(function (i, el) { $(el).val('Enter your text...') })
-            accordionEditor('.ba-editor')
-            accordion.children().first().find('.panel-body').slideDown()
-            accordionHeader($('.ba__basic_data [data-name*=header]'))
+            $(accordion).prepend(accordionFirstHtml).accordion('refresh').accordion('option', 'active', 0)
+            $(accordion).children().first().find('.ba__move + span').empty().end()
+              .find('[data-name^=header]').val('Title').end()
+              .find('.ba-editor').attr('id', 'ba' + Math.floor(Math.random() * 10000))
           }
-          formAction(accordion[0])
+          formAction(accordion)
         })
-      })
-      function accordionEditor (selector, remove) {
-        remove = (typeof remove !== 'undefined') ? remove : false;
-        [].forEach.call(selector + '' === selector ? d.querySelectorAll(selector) : selector, function (el) {
-          var editorid = 'ba' + Math.floor(Math.random() * 10000)
-          if (!remove) el.setAttribute('id', editorid)
-          tinymce.execCommand(remove ? 'mceRemoveEditor' : 'mceAddEditor', true, remove ? el.id : editorid)
-        })
-      }
-      function accordionHeader (el) {
-        el.on('input change touchend', function (e) {
-          $(this).closest('.panel-body').prev().children('span').html(this.value)
-        })
-      }
       /* //////////////////
       //// END BASIC DATA IN ACCORDION /////////
       ////////////////// */
@@ -177,21 +174,23 @@
         bf.baSpinner(selector.querySelectorAll('input[data-rel="spinner"]'))
         bf.baGroupLinked(selector.querySelectorAll('[data-rel="group-linked"]'))
         bf.baPicker(selector.querySelectorAll('.tinycolor'))
+        bf.fontIconModal(selector)
+        bf.tinymceInits()
       }
 
       if (jQuery().chosen) $('select').chosen('destroy')
       $('.ba-editor', this).each(function (i, el) {
-        $(el).attr('id', 'ba-editor-' + Math.floor(Math.random() * 10000))
-        tinymce.execCommand('mceAddEditor', false, $(el).attr('id'))
+        if (!el.hasAttribute('id')) el.id = 'ba-editor-' + Math.floor(Math.random() * 10000)
+        // tinymce.execCommand('mceAddEditor', false, el.id)
       })
       formAction(this)
-      bf.tinymceInits()
+      Obj.css({ opacity: 1, height: 'auto', overflow: 'visible' })
     }) // END THIS.FOREACH /////////
   }
 
   // GET VALUES OF BASIC DATA IN ACCORDION AND SET IT TO TEXTAREA BEFORE SAVE MODULE
-  $(d).ready(function () {
-    var applyButton = d.querySelector('.button-apply')
+  $(doc).ready(function () {
+    var applyButton = doc.querySelector('.button-apply')
     applyButton.removeAttribute('onclick')
     applyButton.parentNode.removeAttribute('task')
     applyButton.onclick = function () {
@@ -217,7 +216,7 @@
     })
   })
 
-  w.onload = function () {
+  win.onload = function () {
     $('.ba-manager').oMain() /* bf.basicData('.accordion-basic') */
     $('.ba-tip, .tooltip').tooltip({ classes: { 'ui-tooltip': 'ba---tooltip' }, track: true })
   }
